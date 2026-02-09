@@ -84,16 +84,7 @@ class Qwen2Attention(Attention):
             quant_config=quant_config,
         )
         rope_scaling = getattr(config, "rope_scaling", None)
-        if rope_scaling is None:
-            self.rotary_emb = RotaryEmbedding(
-                self.head_dim,
-                self.head_dim,
-                self.max_position_embeddings,
-                self.rope_theta,
-                True,
-            )
-        else:
-            assert "mrope_section" in rope_scaling
+        if rope_scaling is not None and "mrope_section" in rope_scaling:
             self.rotary_emb = MRotaryEmbedding(
                 self.head_dim,
                 self.head_dim,
@@ -101,6 +92,14 @@ class Qwen2Attention(Attention):
                 self.rope_theta,
                 True,
                 rope_scaling["mrope_section"],
+            )
+        else:
+            self.rotary_emb = RotaryEmbedding(
+                self.head_dim,
+                self.head_dim,
+                self.max_position_embeddings,
+                self.rope_theta,
+                True,
             )
         self.attn = FlashAttention(
             layer_id, self.scaling, self.num_heads, self.num_kv_heads, self.head_dim
