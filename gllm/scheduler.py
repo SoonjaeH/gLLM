@@ -218,7 +218,7 @@ class Scheduler:
             prefill_batch.append(seq)
             if seq.computed_token_num + seq.to_compute_token_num < seq.prompt_len:
                 seq_new = copy.deepcopy(seq)
-                seq_new = seq.page_table
+                seq_new.page_table = seq.page_table
                 seq_new.computed_token_num += seq_new.to_compute_token_num
                 unfinish_prefill_seqs.appendleft(seq_new)
 
